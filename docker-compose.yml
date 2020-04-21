@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  api:
+    build: .
+    environment:
+      PORT: 8000
+      APP_MODULE: "app.main:app"
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    restart: always
+    depends_on:
+      - postgres
+    command: ["/start-reload.sh"]
+    volumes:
+      - ./app:/root/app
+
+  postgres:
+    image: "postgres:9.5"
+    ports:
+      - "5432:5432"
+    # env_file: .env
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: dbpw
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    restart: always
