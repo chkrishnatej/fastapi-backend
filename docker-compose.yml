@@ -1,7 +1,16 @@
 version: '3'
 
+volumes:
+  app-data:
+  pgadmin:
+
+networks:
+  api:
+    driver: bridge
+
 services:
   api:
+    container_name: employee-api
     build: .
     environment:
       PORT: 8000
@@ -14,17 +23,35 @@ services:
     depends_on:
       - postgres
     command: ["/start-reload.sh"]
+    networks:
+      api:
     volumes:
       - ./app:/root/app
 
   postgres:
+    container_name: employee-postgres
     image: "postgres:9.5"
     ports:
       - "5432:5432"
-    # env_file: .env
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: dbpw
+    env_file:
+      .env
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
-    restart: always
+      - app-data:/var/lib/postgresql/data
+    networks:
+      - api
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: employee-pgadmin
+    image: "dpage/pgadmin4"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    volumes:
+    - pgadmin:/root/pgadmin
+    ports:
+    - "5050:5050"
+    networks:
+      - api
+    restart: unless-stopped
