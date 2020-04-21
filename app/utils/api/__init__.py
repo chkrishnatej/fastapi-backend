@@ -1,1 +1,1 @@
-from .router import TypedAPIRouter
+from app.utils.api.router import TypedAPIRouter
